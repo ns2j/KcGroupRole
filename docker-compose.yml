@@ -1,0 +1,81 @@
+version: '3.8'
+
+# ====================================================
+# Common Identity Provider Configuration (YAML Anchor)
+# ====================================================
+x-keycloak-env: &keycloak-env
+  KEYCLOAK_ISSUER: http://172.26.221.85:8080/realms/example
+
+services:
+
+  # ----------------------------------------------------
+  # 2. Spring Boot Backend (Resource Server)
+  # ----------------------------------------------------
+  backend:
+    build:
+      context: ./apps/backend
+    container_name: spring-backend
+    ports:
+      - "8010:8010"
+    environment:
+      # Inject the shared Keycloak Issuer via YAML anchor
+      <<: *keycloak-env
+    networks:
+      - app-network
+
+  # ----------------------------------------------------
+  # 3. Express BFF (Client / Token Manager)
+  # ----------------------------------------------------
+  bff:
+    build:
+      context: .
+      dockerfile: apps/bff/Dockerfile
+    container_name: node-bff
+    ports:
+      - "8020:8020"
+    environment:
+      # Docker network routing
+      SPRING_BACKEND_URL: http://backend:8010/backend
+
+      # Frontend communication
+      ALLOWED_ORIGINS: http://172.16.2.211:3000
+      BFF_BASE_URL: http://172.16.2.211:8020
+      BFF_BASE_PATH: /bff
+
+      # Defaulting to external Keycloak
+      <<: *keycloak-env
+      KEYCLOAK_CLIENT_ID: example-client
+      KEYCLOAK_CLIENT_SECRET: ciVmu25YBEtVsldMWb5oMc0oB3ngAFLL
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  # ----------------------------------------------------
+  # 4. Next.js App (Web Frontend)
+  # ----------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_BFF_URL: http://172.16.2.211:8020/bff
+        NEXT_PUBLIC_BASE_PATH: /nextjs
+        INTERNAL_BFF_URL: http://bff:8020/bff
+    container_name: nextjs-web
+    ports:
+      - "3000:3000"
+    environment:
+      # Connect locally to the BFF (Client-side)
+      NEXT_PUBLIC_BASE_PATH: /nextjs
+      NEXT_PUBLIC_BFF_URL: http://172.16.2.211:8020/bff
+      # Connect internally inside Docker network (Server-side Proxy API Routes)
+      INTERNAL_BFF_URL: http://bff:8020/bff
+    networks:
+      - app-network
+    depends_on:
+      - bff
+
+networks:
+  app-network:
+    driver: bridge

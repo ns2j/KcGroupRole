@@ -1,0 +1,11 @@
+server:
+  port: 8010
+  servlet:
+    context-path: /backend
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER:http://172.26.221.85:8080/realms/example}

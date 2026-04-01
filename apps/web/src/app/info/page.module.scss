@@ -1,0 +1,89 @@
+@reference "../globals.css";
+
+.loadingContainer {
+  @apply container mx-auto max-w-5xl p-4 md:p-8 flex items-center justify-center min-h-[50vh];
+}
+
+.loadingContent {
+  @apply flex flex-col items-center gap-4 text-slate-500;
+}
+
+.loadingIcon {
+  @apply h-8 w-8 animate-spin text-indigo-600;
+}
+
+.loadingText {
+  @apply font-semibold text-sm;
+}
+
+.errorContainer {
+  @apply container mx-auto max-w-5xl p-4 md:p-8;
+}
+
+.errorBox {
+  @apply bg-red-50 border border-red-200 rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 shadow-sm;
+}
+
+.errorIcon {
+  @apply h-10 w-10 text-red-500;
+}
+
+.errorText {
+  @apply text-red-700 font-medium;
+}
+
+.pageContainer {
+  @apply container mx-auto max-w-5xl p-4 md:p-6 flex flex-col gap-6 animate-in fade-in duration-500;
+}
+
+.headerSection {
+  @apply mb-2 shrink-0;
+
+  h1 {
+    @apply text-2xl font-bold text-slate-900 flex items-center gap-2;
+  }
+  
+  p {
+    @apply text-slate-500 mt-1 text-sm;
+  }
+}
+
+.gridContainer {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.card {
+  @apply bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow;
+
+  .cardHeader {
+    @apply bg-slate-50/80 px-4 py-3 border-b border-slate-200 flex items-center gap-2;
+    
+    h2 {
+      @apply font-bold text-slate-800 text-sm;
+    }
+  }
+
+  .cardContent {
+    @apply p-5 flex flex-col gap-4;
+  }
+}
+
+.profileLabel {
+  @apply text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider;
+}
+
+.profileValue {
+  @apply text-slate-900 font-medium bg-slate-50 p-2.5 rounded-lg border border-slate-100/80;
+}
+
+.profileValueId {
+  @apply text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100/80 font-mono text-xs break-all;
+}
+
+.tokenContainer {
+  @apply p-0 overflow-auto max-h-[250px] bg-slate-900 m-4 rounded-lg border border-slate-800 shadow-inner;
+
+  pre {
+    @apply text-emerald-400 font-mono text-[11px] p-4 leading-relaxed whitespace-pre-wrap break-all;
+  }
+}

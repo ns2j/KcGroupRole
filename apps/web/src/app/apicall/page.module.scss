@@ -1,0 +1,157 @@
+@reference "../globals.css";
+
+.pageContainer {
+  @apply container mx-auto max-w-6xl p-4 md:p-6 h-[calc(100vh-8rem)] flex flex-col;
+}
+
+.headerSection {
+  @apply mb-6 shrink-0;
+
+  h1 {
+    @apply text-2xl font-bold text-slate-900 flex items-center gap-2;
+
+    svg {
+      @apply text-indigo-600;
+    }
+  }
+
+  p {
+    @apply text-slate-500 mt-1 text-sm;
+  }
+}
+
+.mainLayout {
+  @apply flex flex-row gap-6 flex-1 min-h-0;
+}
+
+.leftMenu {
+  @apply w-1/3 flex flex-col gap-3 h-full overflow-y-auto pr-2 shrink-0;
+}
+
+.apiButton {
+  @apply w-full text-left p-3 rounded-xl border transition-all duration-200 shrink-0;
+
+  &:hover .iconInactive {
+    @apply text-indigo-500;
+  }
+}
+
+.apiButtonActive {
+  @apply bg-indigo-50 border-indigo-200 ring-1 ring-indigo-500 shadow-sm;
+}
+
+.apiButtonInactive {
+  @apply bg-white border-slate-200 hover:border-indigo-300 hover:shadow-sm;
+}
+
+.apiButtonHeader {
+  @apply flex items-center justify-between mb-1;
+}
+
+.apiButtonLeftArea {
+  @apply flex items-center gap-2;
+}
+
+.categoryTag {
+  @apply text-[10px] font-bold px-2 py-0.5 rounded-md;
+}
+
+.categoryAst {
+  @apply bg-rose-100 text-rose-700 border border-rose-200;
+}
+
+.categoryApiServer {
+  @apply bg-emerald-100 text-emerald-700;
+}
+.categoryPublic {
+  @apply bg-slate-100 text-slate-700;
+}
+.categoryDefault {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.iconLoading {
+  @apply h-4 w-4 animate-spin text-indigo-600;
+}
+.iconActive {
+  @apply h-4 w-4 text-indigo-600;
+}
+.iconInactive {
+  @apply h-4 w-4 text-slate-400;
+}
+
+.apiName {
+  @apply font-semibold text-slate-800 text-sm mt-1.5;
+}
+
+.apiDescription {
+  @apply text-[11px] text-slate-500 mt-1;
+}
+
+.rightPanel {
+  @apply w-2/3 flex flex-col h-full shrink-0;
+}
+
+.resultContainer {
+  @apply bg-slate-900 rounded-xl border border-slate-800 shadow-xl overflow-hidden flex-1 flex flex-col animate-in fade-in zoom-in-95 duration-300;
+}
+
+.resultHeader {
+  @apply bg-slate-800/50 px-4 py-3 border-b border-slate-700 flex items-center justify-between shrink-0 overflow-hidden gap-4;
+}
+
+.resultHeaderLeft {
+  @apply flex items-center gap-4 truncate;
+}
+
+.resultTitle {
+  @apply flex items-center gap-2 text-slate-300 text-sm font-mono shrink-0;
+}
+
+.activePathBadge {
+  @apply truncate text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded border border-emerald-400/20 text-[10px] font-mono tracking-wider;
+}
+
+.statusBadge {
+  @apply flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold font-mono;
+}
+
+.statusSuccess {
+  @apply bg-green-500/20 text-green-400;
+}
+
+.statusWarning {
+  @apply bg-orange-500/20 text-orange-400;
+}
+
+.statusError {
+  @apply bg-red-500/20 text-red-400;
+}
+
+.responseArea {
+  @apply p-4 overflow-auto flex-1 font-mono text-sm;
+}
+
+.responseEmpty {
+  @apply h-full flex items-center justify-center text-slate-600 text-sm text-center;
+}
+
+.loadingDisplay {
+  @apply h-full flex flex-col items-center justify-center text-slate-400 gap-3;
+}
+
+.loadingDisplayIcon {
+  @apply h-8 w-8 animate-spin text-indigo-500;
+}
+
+.responsePre {
+  @apply whitespace-pre-wrap break-words;
+}
+
+.textWarning {
+  @apply text-orange-300;
+}
+
+.textSuccess {
+  @apply text-emerald-400;
+}

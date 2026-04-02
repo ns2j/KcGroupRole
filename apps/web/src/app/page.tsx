@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2, LogIn, LogOut, Mail, ShieldCheck, User } from 'lucide-react';
+import { fetchProtectedApi, redirectToLogin, redirectToLogout } from '@/lib/api-client';
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
-  const BFF_URL = process.env.NEXT_PUBLIC_BFF_URL || 'http://localhost:8020/exclient';
+  const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || '';
+  const BFF_URL = process.env.NEXT_PUBLIC_BFF_URL || '';
 
   useEffect(() => {
     fetchUserInfo();
@@ -16,9 +17,7 @@ export default function Home() {
 
   const fetchUserInfo = async () => {
     try {
-      const response = await fetch(`${BFF_URL}/info`, {
-        credentials: 'include',
-      });
+      const response = await fetchProtectedApi('/api/node/api/info');
 
       if (response.ok) {
         const data = await response.json();
@@ -35,11 +34,11 @@ export default function Home() {
   };
 
   const handleLogin = () => {
-    window.location.href = `${BFF_URL}/auth/login?redirect_to=${encodeURIComponent(FRONTEND_URL)}`;
+    redirectToLogin();
   };
 
   const handleLogout = () => {
-    window.location.href = `${BFF_URL}/auth/logout?redirect_to=${encodeURIComponent(FRONTEND_URL)}`;
+    redirectToLogout();
   };
 
   if (isLoading) {

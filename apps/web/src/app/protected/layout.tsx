@@ -24,8 +24,8 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       if (status === 'authorized') {
         setAuthState({
           isLoading: false,
-          user: data.user,
-          context: data.context
+          user: data?.user ?? null,
+          context: data?.context ?? null
         });
       } else {
         if (status === 'unauthenticated') {

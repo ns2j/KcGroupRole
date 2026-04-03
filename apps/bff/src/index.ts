@@ -8,7 +8,7 @@ import { Strategy as OpenIDConnectStrategy } from 'passport-openidconnect';
 import cors from 'cors';
 import path from 'path';
 
-import { SESSION_SECRET } from './config';
+import { SESSION_SECRET, SESSION_MAX_AGE } from './config';
 import authRouter from './auth';
 import apiRouter from './api';
 
@@ -34,7 +34,7 @@ app.use(session({
     secure: process.env.COOKIE_SECURE === 'true',
     sameSite: (process.env.COOKIE_SAME_SITE as 'lax' | 'strict' | 'none') || 'lax',
     domain: process.env.COOKIE_DOMAIN || undefined,
-    maxAge: 1000 * 60 * 60 * 24
+    maxAge: SESSION_MAX_AGE
   }
 }));
 

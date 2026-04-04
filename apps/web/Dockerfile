@@ -27,6 +27,14 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Expose ARGs to the runner stage to ensure next.config.ts resolves them successfully at runtime
+ARG NEXT_PUBLIC_BFF_URL
+ARG NEXT_PUBLIC_BASE_PATH
+ARG INTERNAL_BFF_URL
+ENV NEXT_PUBLIC_BFF_URL=${NEXT_PUBLIC_BFF_URL}
+ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+ENV INTERNAL_BFF_URL=${INTERNAL_BFF_URL}
+
 # Copy necessary files specifically from the builder's nested directory
 COPY --from=builder /workspace/apps/web/package*.json ./
 COPY --from=builder /workspace/apps/web/node_modules ./node_modules

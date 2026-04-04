@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
-const basePathValue = process.env.NEXT_PUBLIC_BASE_PATH;
-const basePath = basePathValue === '/' || !basePathValue ? undefined : basePathValue;
+const envBasePath = process.env.NEXT_PUBLIC_BASE_PATH;
+const basePathValue = envBasePath ? envBasePath : '/nextjs';
+const basePath = basePathValue === '/' ? undefined : basePathValue;
 
 const nextConfig: NextConfig = {
   basePath,

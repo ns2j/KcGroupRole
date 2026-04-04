@@ -8,7 +8,6 @@ export default function Home() {
   const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || '';
   const BFF_URL = process.env.NEXT_PUBLIC_BFF_URL || '';
 
   useEffect(() => {

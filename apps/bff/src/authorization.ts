@@ -39,7 +39,7 @@ const adminPolicy: PolicyRule = {
 const APolicy: PolicyRule = {
   operator: 'or',
   rules: [
-    { operator: 'hasRole', roles: ['super_manager'] },
+    { operator: 'hasRole', roles: ['super-manager'] },
     {
       operator: 'and', rules: [
         { operator: 'hasRole', roles: ['manager'] },

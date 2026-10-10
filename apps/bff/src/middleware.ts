@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
 import { PolicyRule, evaluatePolicy } from './policy';
 import type { UserContext } from '../../packages/shared/api-types';
 
@@ -27,6 +28,23 @@ const refreshAccessToken = async (refreshToken: string) => {
 
     return await response.json();
 };
+
+
+const jwks = jwksClient({
+  jwksUri: `${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/certs`,
+  cache: true,
+  rateLimit: true,
+});
+
+function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
+  jwks.getSigningKey(header.kid, (err, key) => {
+    if (err) {
+      callback(err, undefined);
+    } else {
+      callback(null, key?.getPublicKey());
+    }
+  });
+}
 
 // ---------------------------------------------------------
 // 1. Types & Interfaces
@@ -125,17 +143,32 @@ const populatePolicyContext = async (req: Request, res: Response): Promise<boole
     }
 
     try {
-        const decoded = jwt.decode(token) as KeycloakTokenPayload;
+        const decoded = await new Promise<KeycloakTokenPayload>((resolve, reject) => {
+            jwt.verify(token, getKey, {
+                issuer: process.env.KEYCLOAK_ISSUER,
+                // Verify audience if present in access token, or allow standard Keycloak 'account'
+                audience: [process.env.KEYCLOAK_CLIENT_ID || 'example-client', 'account'],
+            }, (err, decoded) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(decoded as KeycloakTokenPayload);
+                }
+            });
+        });
 
-        if (!decoded) {
-            res.status(401).json({ error: 'Unauthorized: Malformed token' });
+        // Also check azp (Authorized Party) if aud check is insufficient
+        const clientId = process.env.KEYCLOAK_CLIENT_ID || 'example-client';
+        if (decoded.azp && decoded.azp !== clientId) {
+            res.status(403).json({ error: 'Forbidden: Invalid azp claim' });
             return false;
         }
 
-        req.policyContext = extractUserContext(decoded, 'your-client-id');
+        req.policyContext = extractUserContext(decoded, clientId);
         return true;
     } catch (error) {
-        res.status(403).json({ error: 'Forbidden: Invalid token' });
+        console.error('Token validation failed:', error);
+        res.status(403).json({ error: 'Forbidden: Invalid token signature or claims' });
         return false;
     }
 };

@@ -86,16 +86,32 @@ const getToken = (req: Request): string | null => {
 const extractUserContext = (payload: KeycloakTokenPayload, clientId?: string): UserContext => {
     const roles = new Set<string>();
 
-    if (payload.realm_access?.roles) {
-        payload.realm_access.roles.forEach(r => roles.add(r));
+    // 1. Validate realm_access.roles is an array of strings
+    if (payload.realm_access && Array.isArray(payload.realm_access.roles)) {
+        payload.realm_access.roles.forEach(r => {
+            if (typeof r === 'string') roles.add(r);
+        });
     }
-    if (clientId && payload.resource_access?.[clientId]?.roles) {
-        payload.resource_access[clientId].roles.forEach(r => roles.add(r));
+
+    // 2. Validate resource_access[clientId].roles is an array of strings
+    if (clientId && payload.resource_access && payload.resource_access[clientId]) {
+        const clientRoles = payload.resource_access[clientId].roles;
+        if (Array.isArray(clientRoles)) {
+            clientRoles.forEach(r => {
+                if (typeof r === 'string') roles.add(r);
+            });
+        }
+    }
+
+    // 3. Validate groups is an array of strings
+    let groups: string[] = [];
+    if (Array.isArray(payload.groups)) {
+        groups = payload.groups.filter(g => typeof g === 'string');
     }
 
     return {
         roles: Array.from(roles),
-        groups: payload.groups || []
+        groups
     };
 };
 
@@ -143,11 +159,14 @@ const populatePolicyContext = async (req: Request, res: Response): Promise<boole
     }
 
     try {
+        const clientId = process.env.KEYCLOAK_CLIENT_ID || 'example-client';
+        
         const decoded = await new Promise<KeycloakTokenPayload>((resolve, reject) => {
             jwt.verify(token, getKey, {
+                algorithms: ['RS256'], // Explicitly require RS256 signature
                 issuer: process.env.KEYCLOAK_ISSUER,
-                // Verify audience if present in access token, or allow standard Keycloak 'account'
-                audience: [process.env.KEYCLOAK_CLIENT_ID || 'example-client', 'account'],
+                // Strictly enforce audience (adjust if 'account' is not actually needed by the BFF)
+                audience: [clientId, 'account'],
             }, (err, decoded) => {
                 if (err) {
                     reject(err);
@@ -157,10 +176,10 @@ const populatePolicyContext = async (req: Request, res: Response): Promise<boole
             });
         });
 
-        // Also check azp (Authorized Party) if aud check is insufficient
-        const clientId = process.env.KEYCLOAK_CLIENT_ID || 'example-client';
-        if (decoded.azp && decoded.azp !== clientId) {
-            res.status(403).json({ error: 'Forbidden: Invalid azp claim' });
+        // Strictly enforce 'azp' claim existence and value
+        if (!decoded.azp || decoded.azp !== clientId) {
+            console.error(`Token rejected: invalid azp claim. Expected: ${clientId}, Got: ${decoded.azp}`);
+            res.status(403).json({ error: 'Forbidden: Missing or invalid azp claim' });
             return false;
         }
 

@@ -54,14 +54,19 @@ public class SecurityConfig {
                 List<String> aud = jwt.getAudience();
                 String azp = jwt.getClaimAsString("azp");
                 
-                // Verify audience or authorized party (azp)
-                if ((aud != null && (aud.contains(clientId) || aud.contains("account"))) || 
-                    (azp != null && azp.equals(clientId))) {
-                    return OAuth2TokenValidatorResult.success();
+                // 1. Strictly enforce azp claim existence and value
+                if (azp == null || !azp.equals(clientId)) {
+                    return OAuth2TokenValidatorResult.failure(new OAuth2Error(
+                        OAuth2ErrorCodes.INVALID_TOKEN, "The token is missing or has an invalid azp claim", null));
+                }
+
+                // 2. Validate audience (allow clientId or 'account')
+                if (aud == null || (!aud.contains(clientId) && !aud.contains("account"))) {
+                    return OAuth2TokenValidatorResult.failure(new OAuth2Error(
+                        OAuth2ErrorCodes.INVALID_TOKEN, "The token does not contain a valid audience", null));
                 }
                 
-                return OAuth2TokenValidatorResult.failure(new OAuth2Error(
-                    OAuth2ErrorCodes.INVALID_TOKEN, "The token does not contain a valid audience or azp claim", null));
+                return OAuth2TokenValidatorResult.success();
             }
         };
 

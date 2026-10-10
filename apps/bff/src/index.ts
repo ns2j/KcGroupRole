@@ -42,7 +42,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Keycloak OpenID Connect Configuration
-passport.use('keycloak', new OpenIDConnectStrategy({
+const strategy = new OpenIDConnectStrategy({
   issuer: process.env.KEYCLOAK_ISSUER!,
   authorizationURL: `${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/auth`,
   tokenURL: `${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
@@ -57,7 +57,13 @@ passport.use('keycloak', new OpenIDConnectStrategy({
   profile.idToken = idToken;
   profile.refreshToken = refreshToken;
   return done(null, profile);
-}) as any));
+}) as any);
+
+// Keycloak expects client_id and client_secret in the Authorization header (Basic Auth) 
+// for the token endpoint, rather than in the POST body.
+strategy._oauth2.useAuthorizationHeaderforGET(true);
+
+passport.use('keycloak', strategy);
 
 passport.serializeUser((user, done) => {
   done(null, user);

@@ -13,6 +13,10 @@ export type PolicyRule =
     | OrCondition
     | NotCondition;
 
+const matchesGroup = (userGroup: string, requiredGroup: string) =>
+  userGroup === requiredGroup ||
+  userGroup.startsWith(`${requiredGroup}/`);
+
 /**
  * Evaluates a JSON policy AST against a user's context.
  */
@@ -23,10 +27,9 @@ export const evaluatePolicy = (rule: PolicyRule, user: UserContext): boolean => 
             return rule.roles.some(role => user.roles.includes(role));
 
         case 'isInGroup':
-            // NEW: Check if any of the user's groups START WITH any of the required groups.
-            // This allows hierarchical inheritance (e.g., requiring "/admin" allows "/admin/subgroup")
+            // Check if any of the user's groups matches the required group or its subgroups.
             return rule.groups.some(requiredGroup =>
-                user.groups.some(userGroup => userGroup.startsWith(requiredGroup))
+                user.groups.some(userGroup => matchesGroup(userGroup, requiredGroup))
             );
 
         case 'and':

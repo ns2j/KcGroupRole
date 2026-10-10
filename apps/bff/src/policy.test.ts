@@ -49,3 +49,37 @@ test('evaluatePolicy - complex AST (and / or)', () => {
     const userFail: UserContext = { roles: ['manager'], groups: ['/B'] };
     assert.strictEqual(evaluatePolicy(rule, userFail), false);
 });
+
+test('evaluatePolicy - not operator', () => {
+    const user: UserContext = { roles: ['manager'], groups: [] };
+    
+    // User does NOT have 'admin' role, so (not hasRole 'admin') should be true
+    const rule: PolicyRule = {
+        operator: 'not',
+        rule: { operator: 'hasRole', roles: ['admin'] }
+    };
+    assert.strictEqual(evaluatePolicy(rule, user), true);
+
+    // User DOES have 'manager' role, so (not hasRole 'manager') should be false
+    const rule2: PolicyRule = {
+        operator: 'not',
+        rule: { operator: 'hasRole', roles: ['manager'] }
+    };
+    assert.strictEqual(evaluatePolicy(rule2, user), false);
+});
+
+test('evaluatePolicy - empty conditions behavior', () => {
+    const user: UserContext = { roles: ['manager'], groups: ['/A'] };
+    
+    // Empty roles array in hasRole returns false (Array.prototype.some returns false for empty arrays)
+    assert.strictEqual(evaluatePolicy({ operator: 'hasRole', roles: [] }, user), false);
+
+    // Empty groups array in isInGroup returns false
+    assert.strictEqual(evaluatePolicy({ operator: 'isInGroup', groups: [] }, user), false);
+
+    // Empty rules array in 'or' returns false (Array.prototype.some returns false)
+    assert.strictEqual(evaluatePolicy({ operator: 'or', rules: [] }, user), false);
+
+    // Empty rules array in 'and' returns true (Array.prototype.every returns true for empty arrays)
+    assert.strictEqual(evaluatePolicy({ operator: 'and', rules: [] }, user), true);
+});

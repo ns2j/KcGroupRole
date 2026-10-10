@@ -44,7 +44,7 @@ authRouter.get('/callback',
             const urlObj = new URL(targetUrl);
             urlObj.searchParams.append('session', signedSessionCookie);
             targetUrl = urlObj.toString();
-            console.log('📱 Passing the [latest] session to the mobile app:', targetUrl);
+            console.log('📱 Redirecting back to mobile app');
         }
 
         console.log('Final redirect destination:', targetUrl);

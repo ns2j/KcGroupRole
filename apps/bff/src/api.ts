@@ -12,27 +12,25 @@ apiRouter.use('/public', publicRouter);
 apiRouter.use('/authorization', authorizationRouter);
 
 apiRouter.get('/info', authenticateToken, (req: Request, res: Response) => {
-  console.log('--- /info call from Flutter ---');
-  console.log('Received Cookies:', req.headers.cookie);
-  console.log('Authentication status:', req.isAuthenticated());
+  if (req.isAuthenticated() && req.user) {
+    const userAny = req.user as any;
+    // Remove raw tokens from the profile data
+    const { accessToken, idToken, refreshToken, _raw, _json, ...safeUser } = userAny;
 
-  if (req.isAuthenticated()) {
-    const accessToken = req.user?.accessToken;
-    let decodedToken = null;
-
+    let decodedAccessToken = null;
     if (accessToken) {
       try {
-        decodedToken = jwt.decode(accessToken);
+        decodedAccessToken = jwt.decode(accessToken);
       } catch (e) {
         console.error('Failed to decode access token:', e);
       }
     }
 
     res.json({
-      accessToken: accessToken,
-      decodedAccessToken: decodedToken,
-      idToken: req.user?.idToken,
-      user: req.user
+      isAuthenticated: true,
+      context: req.policyContext,
+      user: safeUser,
+      decodedAccessToken
     });
   } else {
     res.status(401).json({ error: 'Not authenticated' });

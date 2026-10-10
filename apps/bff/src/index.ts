@@ -25,7 +25,10 @@ app.use(cors({
 
 app.use(cookieParser());
 
+// TODO: For multi-process or production environments, replace MemoryStore with a shared store (e.g., connect-redis)
+// const RedisStore = require('connect-redis').default;
 app.use(session({
+  // store: new RedisStore({ client: redisClient }),
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
